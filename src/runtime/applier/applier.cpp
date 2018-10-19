@@ -120,7 +120,7 @@ namespace hpx { namespace applier
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    hpx::util::thread_specific_ptr<applier*, applier::tls_tag> applier::applier_;
+    HPX_NATIVE_TLS applier* applier::applier_ = nullptr;
 
     applier::applier(parcelset::parcelhandler &ph, threads::threadmanager& tm)
       : parcel_handler_(ph), thread_manager_(tm)
@@ -217,33 +217,32 @@ namespace hpx { namespace applier
 
     void applier::init_tss()
     {
-        if (nullptr == applier::applier_.get())
-            applier::applier_.reset(new applier* (this));
+        if (nullptr == applier::applier_)
+            applier::applier_ = this;
     }
 
     void applier::deinit_tss()
     {
-        applier::applier_.reset();
+        applier::applier_ = nullptr;
     }
 
     applier& get_applier()
     {
         // should have been initialized
-        HPX_ASSERT(nullptr != applier::applier_.get());
-        return **applier::applier_;
+        HPX_ASSERT(nullptr != applier::applier_);
+        return *applier::applier_;
     }
 
     applier* get_applier_ptr()
     {
-        applier** appl = applier::applier_.get();
-        return appl ? *appl : nullptr;
+        return applier::applier_;
     }
 
     // The function \a get_locality_id returns the id of this locality
     std::uint32_t get_locality_id(error_code& ec) //-V659
     {
-        applier** appl = applier::applier_.get();
-        return appl ? (*appl)->get_locality_id(ec) : naming::invalid_locality_id;
+        applier* appl = applier::applier_;
+        return appl ? appl->get_locality_id(ec) : naming::invalid_locality_id;
     }
 }}
 
