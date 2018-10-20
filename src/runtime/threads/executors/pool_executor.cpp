@@ -71,10 +71,9 @@ namespace hpx { namespace threads { namespace executors
         {
             // create a new thread
             thread_init_data data(
-                util::bind(
-                    util::one_shot(
-                        &pool_executor::thread_function_nullary),
-                    std::move(f)),
+                util::one_shot(util::bind(
+                    &pool_executor::thread_function_nullary,
+                    std::move(f))),
                 desc);
 
             if (stacksize == threads::thread_stacksize_default)
@@ -105,10 +104,9 @@ namespace hpx { namespace threads { namespace executors
         {
             // create a new suspended thread
             thread_init_data data(
-                util::bind(
-                    util::one_shot(
-                        &pool_executor::thread_function_nullary),
-                    std::move(f)),
+                util::one_shot(util::bind(
+                    &pool_executor::thread_function_nullary,
+                    std::move(f))),
                 desc);
 
             if (stacksize == threads::thread_stacksize_default)
